@@ -1,5 +1,6 @@
 import DocSection from '../components/DocSection';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 
 const sections = [
   { id: 'package-implementation', title: 'Package File Implementation', description: 'Includes Playwright BDD scripts and dependencies' },
@@ -17,7 +18,32 @@ const sections = [
 ];
 
 export default function DocumentationPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+      
+      // Update active section based on scroll position
+      const scrollPosition = window.scrollY + 100;
+      
+      for (const section of sections) {
+        const element = document.getElementById(section.id);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section.id);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -25,59 +51,126 @@ export default function DocumentationPage() {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setActiveSection(sectionId);
     }
+    setIsMenuOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      <div className="flex">
-        {/* Side Menu */}
-        <aside className="hidden lg:block w-64 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 sticky top-0 h-screen overflow-y-auto">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pl-3 border-b border-gray-200 dark:border-gray-700 pb-4">General Walkthrough</h2>
-            <nav className="space-y-1">
-              {sections.map((section) => (
+      {/* Mobile Header */}
+      <header className={`lg:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'bg-white dark:bg-gray-800 shadow-lg' : 'bg-transparent'
+      }`}>
+        <div className="flex items-center justify-between p-4">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Docs</h1>
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+
+      <div className="lg:flex"> {/* Flex container for desktop */}
+        {/* Side Navigation */}
+        <aside className={`
+          fixed top-0 left-0 h-full w-72 bg-white dark:bg-gray-800 shadow-xl
+          transform transition-transform duration-300 ease-in-out z-50
+          ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:static lg:w-80 lg:shadow-none lg:border-r lg:border-gray-200 dark:lg:border-gray-700
+        `}>
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Navigation</h2>
                 <button
-                  key={section.id}
-                  onClick={() => scrollToSection(section.id)}
-                  className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                    activeSection === section.id
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="lg:hidden p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  {section.title}
+                  <X className="w-5 h-5" />
                 </button>
-              ))}
+              </div>
+            </div>
+            
+            <nav className="flex-1 overflow-y-auto p-4">
+              <div className="space-y-1">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => scrollToSection(section.id)}
+                    className={`
+                      w-full text-left px-3 py-3 text-sm rounded-lg transition-all duration-200
+                      ${activeSection === section.id
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }
+                    `}
+                  >
+                    <div className="font-medium">{section.title}</div>
+                    <div className="text-xs opacity-75 mt-1">{section.description}</div>
+                  </button>
+                ))}
+              </div>
             </nav>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Documentation</h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
+        <main className="flex-1 pt-16 lg:pt-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center mb-12">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Documentation
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 Follow the instructions to implement auto-heal-utility and try the code behind it.
               </p>
             </div>
             
             <div className="space-y-8">
-              <div id="package-implementation">
-                <DocSection
-                  title="Package File Implementation"
-                  description="Includes Playwright BDD scripts and dependencies"
-                  filename="package.json"
-                  code={`{
+              {sections.map((section) => (
+                <section key={section.id} id={section.id} className="scroll-mt-20">
+                  <DocSection
+                    title={section.title}
+                    description={section.description}
+                    filename={section.id === 'run-test' ? 'terminal' : 
+                             section.id === 'environment-variables' ? '.env' :
+                             section.id === 'run-commands' ? 'terminal' :
+                             `${section.id.replace(/-/g, '.')}.ts`}
+                    code={getCodeForSection(section.id)}
+                    language={getLanguageForSection(section.id)}
+                  />
+                </section>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function getCodeForSection(sectionId: string): string {
+  const codeMap: Record<string, string> = {
+    'package-implementation': `{
   "name": "auto-healer-implementation",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx bddgen && npx playwright test --headed --project=\"Browser\"",
-    "test:headless": "npx bddgen && npx playwright test --project=\"Browser\"",
-    "test:debug": "npx bddgen && npx playwright test --headed --project=\"Browser\" --debug",
-    "test:tag": "npx bddgen && npx playwright test --grep \"@feature-tag\" --headed --project=\"Browser\"",
+    "test": "npx bddgen && npx playwright test --headed --project="Browser"",
+    "test:headless": "npx bddgen && npx playwright test --project="Browser"",
+    "test:debug": "npx bddgen && npx playwright test --headed --project="Browser" --debug",
+    "test:tag": "npx bddgen && npx playwright test --grep "@feature-tag" --headed --project="Browser"",
     "report": "npx playwright show-report"
   },
   "keywords": [],
@@ -93,28 +186,10 @@ export default function DocumentationPage() {
     "auto-heal-utility": "^1.0.3",
     "dotenv": "^17.2.1"
   }
-}
-`}
-                />
-              </div>
-
-              <div id="run-commands">
-                <DocSection
-                  title="Run the commands"
-                  description=""
-                  filename="terminal"
-                  code={`npm install
-npx playwright install`}
-                />
-              </div>
-
-              <div id="playwright-config">
-                <DocSection
-                  title="Playwright Config"
-                  description="Provides configurations for Playwright Tests"
-                  filename="playwright.config.ts"
-                  language="typescript"
-                  code={`import { defineConfig, devices } from "@playwright/test";
+}`,
+    'run-commands': `npm install
+npx playwright install`,
+    'playwright-config': `import { defineConfig, devices } from "@playwright/test";
 import { defineBddConfig } from "playwright-bdd";
 import dotenv from "dotenv";
 
@@ -148,7 +223,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : 4,
-  reporter: [["html", { open: "always" }], ["junit", { outputFile: "test-results/e2e-junit-results.xml" }], ["./reporter/CustomReporter.ts"]],
+  reporter: [["html", { open: "always" }], ["junit", { outputFile: "test-results/e2e-junit-results.xml" }]],
   timeout: 15 * 60 * 1000,
   expect: { timeout: 15 * 1000 },
   use: {
@@ -173,53 +248,36 @@ export default defineConfig({
       },
     },
   ],
-});
-`}
-                />
-              </div>
-
-              <div id="typescript-config">
-                <DocSection
-                  title="Typescript Config"
-                  description="Configures typescript variables"
-                  filename="tsconfig.json"
-                  code={`{
+});`,
+    'typescript-config': `{
   "compilerOptions": {
-    "target": "esnext", // Use the latest JavaScript features
-    "module": "esnext", // Use ES modules for compatibility with Playwright
-    "strict": true, // Enable all strict type-checking options
-    "noEmit": true, // Prevent emitting JavaScript files (useful for Playwright projects)
-    "resolveJsonModule": true, // Allow importing JSON files
-    "esModuleInterop": true, // Enable compatibility with CommonJS and ES modules
-    "allowSyntheticDefaultImports": true, // Allow default imports from modules without default exports
-    "moduleResolution": "node", // Use Node.js-style module resolution
-    "baseUrl": "./", // Set the base URL for module resolution
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
     "paths": {
-      "*": ["*"] // Allow resolving modules without extensions
+      "*": ["*"]
     },
-    "types": ["playwright"], // Include Playwright types globally
-    "skipLibCheck": true, // Skip type checking of declaration files for faster builds
-    "forceConsistentCasingInFileNames": true // Ensure consistent file name casing
+    "types": ["playwright"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "**/*.ts", // Include all TypeScript files
-    "**/*.json" // Include JSON files
+    "**/*.ts",
+    "**/*.json"
   ],
   "exclude": [
-    "node_modules", // Exclude dependencies
-    "dist", // Exclude build output
-    "playwright-report" // Exclude Playwright reports
+    "node_modules",
+    "dist",
+    "playwright-report"
   ]
-}`}
-                />
-              </div>
-
-              <div id="reusable-utility">
-                <DocSection
-                  title="Reusable Utility"
-                  description="The auto-healer is imported and used"
-                  filename="utility/Reusable.ts"
-                  code={`import { Page } from "@playwright/test";
+}`,
+    'reusable-utility': `import { Page } from "@playwright/test";
 import { AutoHeal, WaitHelper } from "auto-heal-utility";
 
 export class Reusable {
@@ -234,17 +292,8 @@ export class Reusable {
     this.waitHelper = new WaitHelper(page, this.timeout);
     this.autoHeal = new AutoHeal(page, this.timeout);
   }
-}
-`}
-                />
-              </div>
-
-              <div id="example-page">
-                <DocSection
-                  title="Example Page"
-                  description="Contains locators and actions"
-                  filename="Pages/GooglePage.ts"
-                  code={`import { Locator, Page, expect } from "@playwright/test";
+}`,
+    'example-page': `import { Locator, Page, expect } from "@playwright/test";
 import { Metadata } from "auto-heal-utility";
 import { Reusable } from "../utility/Reusable";
 
@@ -255,7 +304,7 @@ export class GooglePage extends Reusable {
   constructor(page: Page) {
     super(page);
     this.page = page;
-    this.googleSearchInput = this.page.locator('xpath=//textarea[@aria-label="SearchPQRT"]');
+    this.googleSearchInput = this.page.locator('xpath=//textarea[@aria-label="Search"]');
   }
   async goto() {
     await this.page.goto("https://www.google.com");
@@ -263,23 +312,14 @@ export class GooglePage extends Reusable {
 
   async search(keyword: string, metadata: Metadata) {
     await this.page.waitForLoadState("networkidle");
-    (await this.waitHelper.waitForElementAndFill([this.googleSearchInput, this.page.getByTitle("SearchABCD").last()], keyword, metadata)).press("Enter");
+    (await this.waitHelper.waitForElementAndFill([this.googleSearchInput], keyword, metadata)).press("Enter");
   }
 
   async verifyTitle(keyword: string) {
     await expect(this.page).toHaveTitle(new RegExp(keyword));
   }
-}
-`}
-                />
-              </div>
-
-              <div id="reusable-pages">
-                <DocSection
-                  title="Reusable Page Implementation"
-                  description="All the pages are to be contained in a single page"
-                  filename="Pages/ReusablePages.ts"
-                  code={`import { Page } from "@playwright/test";
+}`,
+    'reusable-pages': `import { Page } from "@playwright/test";
 import { GooglePage } from "./GooglePage";
 import { Reusable } from "../utility/Reusable";
 
@@ -292,17 +332,8 @@ export class ReusablePages extends Reusable {
     this.page = page;
     this.googlePage = new GooglePage(page);
   }
-}
-`}
-                />
-              </div>
-
-              <div id="feature-file">
-                <DocSection
-                  title="Example Feature File (Gherkin)"
-                  description="Contains the feature and scenarios"
-                  filename="Features/Example/GoogleSearch.feature"
-                  code={`Feature: Google Search Feature
+}`,
+    'feature-file': `Feature: Google Search Feature
 
   Scenario Outline: TC01 - Search Google and Verify Title
     Given User navigates to the Google homepage
@@ -315,16 +346,8 @@ export class ReusablePages extends Reusable {
     | LinkedIn       |
     | Buggati        |
     | Pencil         |
-    | Spiderman      |`}
-                />
-              </div>
-
-              <div id="fixtures">
-                <DocSection
-                  title="Fixtures"
-                  description="Contains the fixtures for Playwright BDD"
-                  filename="Fixtures/fixtures.ts"
-                  code={`import { test as base, createBdd } from "playwright-bdd";
+    | Spiderman      |`,
+    'fixtures': `import { test as base, createBdd } from "playwright-bdd";
 import { ReusablePages } from "../Pages/ReusablePages";
 import { Metadata } from "auto-heal-utility";
 
@@ -340,25 +363,16 @@ export const test = base.extend<TestPages>({
   },
   metadata: async ({}, use, testInfo) => {
     const metadata: Metadata = {
-      feature: testInfo.titlePath[0], // Feature name
-      scenario: testInfo.titlePath[1], // Scenario name
-      step: "", // Step will be updated dynamically
+      feature: testInfo.titlePath[0],
+      scenario: testInfo.titlePath[1],
+      step: "",
     };
     await use(metadata);
   },
 });
 
-export const { Given, When, Then, Before, After } = createBdd(test);
-`}
-                />
-              </div>
-
-              <div id="step-definitions">
-                <DocSection
-                  title="Step Definitions"
-                  description="Contains the step definitions for the feature file"
-                  filename="Steps/GoogleSearch.steps.ts"
-                  code={`import { Given, When, Then } from "../Fixtures/fixtures";
+export const { Given, When, Then, Before, After } = createBdd(test);`,
+    'step-definitions': `import { Given, When, Then } from "../Fixtures/fixtures";
 
 Given("User navigates to the Google homepage", async ({ metadata, pages }) => {
   metadata.step = "User navigates to the Google homepage";
@@ -366,40 +380,33 @@ Given("User navigates to the Google homepage", async ({ metadata, pages }) => {
 });
 
 When("User searches for {string}", async ({ metadata, pages }, keyword: string) => {
-  metadata.step = "User searches for {string}"; // Step doesn't include data
+  metadata.step = "User searches for {string}";
   await pages.googlePage.search(keyword, metadata);
 });
 
 Then("User should see {string} in the title", async ({ metadata, pages }, keyword: string) => {
-  metadata.step = "User should see {string} in the title"; // Step doesn't include data
+  metadata.step = "User should see {string} in the title";
   await pages.googlePage.verifyTitle(keyword);
-});
-`}
-                />
-              </div>
+});`,
+    'environment-variables': `BROWSER=chrome
+HEADLESS=false`,
+    'run-test': `npm test`
+  };
+  
+  return codeMap[sectionId] || '';
+}
 
-              <div id="environment-variables">
-                <DocSection
-                  title="Environment Variables"
-                  description="Contains the environment variables for the project"
-                  filename=".env"
-                  code={`BROWSER=chrome
-HEADLESS=false`}
-                />
-              </div>
-
-              <div id="run-test">
-                <DocSection
-                  title="Run the Test using the command"
-                  description=""
-                  filename="terminal"
-                  code={`npm test`}
-                />
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
-  );
+function getLanguageForSection(sectionId: string): string {
+  const languageMap: Record<string, string> = {
+    'package-implementation': 'json',
+    'playwright-config': 'typescript',
+    'typescript-config': 'json',
+    'reusable-utility': 'typescript',
+    'example-page': 'typescript',
+    'reusable-pages': 'typescript',
+    'step-definitions': 'typescript',
+    'fixtures': 'typescript'
+  };
+  
+  return languageMap[sectionId] || '';
 }
