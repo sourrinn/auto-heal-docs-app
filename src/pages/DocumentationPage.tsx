@@ -25,10 +25,8 @@ export default function DocumentationPage() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
-      
-      // Update active section based on scroll position
       const scrollPosition = window.scrollY + 100;
-      
+
       for (const section of sections) {
         const element = document.getElementById(section.id);
         if (element) {
@@ -45,6 +43,11 @@ export default function DocumentationPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'auto' : 'auto';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isMenuOpen]);
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -55,11 +58,9 @@ export default function DocumentationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Mobile Header */}
-      <header className={`lg:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white dark:bg-gray-800 shadow-lg' : 'bg-transparent'
-      }`}>
+    <div className="min-h-screen bg-white dark:bg-gray-900 max-w-screen">
+      {/* Header */}
+      <header className={`lg:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white dark:bg-gray-800 shadow-lg' : 'bg-transparent'}`}>
         <div className="flex items-center justify-between p-4">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Docs</h1>
           <button
@@ -74,90 +75,78 @@ export default function DocumentationPage() {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setIsMenuOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsMenuOpen(false)} />
       )}
 
-      <div className="lg:flex"> {/* Flex container for desktop */}
-        {/* Side Navigation */}
+      <div className="lg:flex pt-16 lg:pt-0">
+        {/* Sidebar Navigation */}
         <aside className={`
-          fixed top-0 left-0 h-full w-72 bg-white dark:bg-gray-800 shadow-xl
+          fixed top-0 left-0 h-full w-full lg:w-1/4 bg-white dark:bg-gray-800 shadow-xl max-h-screen
           transform transition-transform duration-300 ease-in-out z-50
           ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0 lg:static lg:w-80 lg:shadow-none lg:border-r lg:border-gray-200 dark:lg:border-gray-700
-        `}>
+          lg:translate-x-0 lg:shadow-none lg:border-r lg:border-gray-200 dark:lg:border-gray-700
+          lg:sticky lg:top-0 scroll-auto overflow-y-auto
+        `} style={{ scrollbarWidth: 'none' }}>
           <div className="h-full flex flex-col">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Navigation</h2>
-                <button
-                  onClick={() => setIsMenuOpen(false)}
-                  className="lg:hidden p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Navigation</h2>
+              <button onClick={() => setIsMenuOpen(false)} className="lg:hidden p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            
-            <nav className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-1">
-                {sections.map((section) => (
-                  <button
-                    key={section.id}
-                    onClick={() => scrollToSection(section.id)}
-                    className={`
-                      w-full text-left px-3 py-3 text-sm rounded-lg transition-all duration-200
-                      ${activeSection === section.id
-                        ? 'bg-blue-500 text-white shadow-md'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }
-                    `}
-                  >
-                    <div className="font-medium">{section.title}</div>
-                    <div className="text-xs opacity-75 mt-1">{section.description}</div>
-                  </button>
-                ))}
-              </div>
+            <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200
+                    ${activeSection === section.id
+                      ? 'bg-blue-600 text-white shadow'
+                      : 'text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <div>{section.title}</div>
+                  {section.description && <div className="text-xs opacity-75 mt-1">{section.description}</div>}
+                </button>
+              ))}
             </nav>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 pt-16 lg:pt-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center mb-12">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Documentation
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Follow the instructions to implement auto-heal-utility and try the code behind it.
-              </p>
-            </div>
-            
-            <div className="space-y-8">
-              {sections.map((section) => (
-                <section key={section.id} id={section.id} className="scroll-mt-20">
-                  <DocSection
-                    title={section.title}
-                    description={section.description}
-                    filename={section.id === 'run-test' ? 'terminal' : 
-                             section.id === 'environment-variables' ? '.env' :
-                             section.id === 'run-commands' ? 'terminal' :
-                             `${section.id.replace(/-/g, '.')}.ts`}
-                    code={getCodeForSection(section.id)}
-                    language={getLanguageForSection(section.id)}
-                  />
-                </section>
-              ))}
-            </div>
+        <main className="flex-1 lg:w-3/4 px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center mb-12">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Documentation
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Follow the instructions to implement auto-heal-utility and try the code behind it.
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {sections.map((section) => (
+              <section key={section.id} id={section.id} className="scroll-mt-20">
+                <DocSection
+                  title={section.title}
+                  description={section.description}
+                  filename={
+                    section.id === 'run-test' || section.id === 'run-commands' ? 'terminal' :
+                      section.id === 'environment-variables' ? '.env' :
+                        `${section.id.replace(/-/g, '.')}.ts`
+                  }
+                  code={getCodeForSection(section.id)}
+                  language={getLanguageForSection(section.id)}
+                />
+              </section>
+            ))}
           </div>
         </main>
       </div>
     </div>
   );
 }
+
 
 function getCodeForSection(sectionId: string): string {
   const codeMap: Record<string, string> = {
@@ -392,7 +381,7 @@ Then("User should see {string} in the title", async ({ metadata, pages }, keywor
 HEADLESS=false`,
     'run-test': `npm test`
   };
-  
+
   return codeMap[sectionId] || '';
 }
 
@@ -407,6 +396,6 @@ function getLanguageForSection(sectionId: string): string {
     'step-definitions': 'typescript',
     'fixtures': 'typescript'
   };
-  
+
   return languageMap[sectionId] || '';
 }
