@@ -13,7 +13,7 @@ const sections = [
   { id: 'fixtures', title: 'Fixtures', description: 'Contains the fixtures for Playwright BDD' },
   { id: 'step-definitions', title: 'Step Definitions', description: 'Contains the step definitions for the feature file' },
   { id: 'environment-variables', title: 'Environment Variables', description: 'Contains the environment variables for the project' },
-  { id: 'run-test', title: 'Run the Test using the command', description: '' }
+  { id: 'run-test', title: 'Run the Test', description: '' }
 ];
 
 export default function DocumentationPage() {

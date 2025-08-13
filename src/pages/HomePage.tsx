@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function HomePage() {
   return (
@@ -32,6 +33,8 @@ export default function HomePage() {
           >
             Learn More
           </Link>
+
+          <ThemeToggle />
         </div>
     </div>
   </div>
