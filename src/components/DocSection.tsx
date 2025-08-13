@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface DocSectionProps {
   title: string;
   description: string;
@@ -8,7 +6,7 @@ interface DocSectionProps {
   language?: string;
 }
 
-export default function DocSection({ title, description, filename, code, language = 'typescript' }: DocSectionProps) {
+export default function DocSection({ title, description, filename, code }: DocSectionProps) {
   return (
     <div className="mb-8 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm">
       <div className="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
