@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 
 const sections = [
-  { id: 'package-implementation', title: 'Package File Implementation', description: 'Includes Playwright BDD scripts and dependencies' },
+  { id: 'package-implementation', title: 'Package File Implementation', description: 'Includes Playwright BDD scripts and dependencies', filename: 'package.json' },
   { id: 'run-commands', title: 'Run the commands', description: '' },
   { id: 'playwright-config', title: 'Playwright Config', description: 'Provides configurations for Playwright Tests' },
   { id: 'typescript-config', title: 'Typescript Config', description: 'Configures typescript variables' },
