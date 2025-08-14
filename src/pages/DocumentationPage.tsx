@@ -89,7 +89,7 @@ export default function DocumentationPage() {
         `} style={{ scrollbarWidth: 'none' }}>
           <div className="h-full flex flex-col">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Navigation</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white lg:pl-4">Automation Healer</h2>
               <button onClick={() => setIsMenuOpen(false)} className="lg:hidden p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                 <X className="w-5 h-5" />
               </button>

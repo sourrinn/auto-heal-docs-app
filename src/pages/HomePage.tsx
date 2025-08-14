@@ -4,7 +4,7 @@ import ThemeToggle from "../components/ThemeToggle";
 export default function HomePage() {
   return (
     <>
-    <section className="bg-white dark:bg-gray-900 flex items-center justify-center min-h-screen">
+    <section className="bg-blue-300 dark:bg-gray-900 flex items-center justify-center min-h-screen">
       <div className="mx-auto w-full max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl dark:text-white leading-tight">

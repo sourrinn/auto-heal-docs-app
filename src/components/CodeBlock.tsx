@@ -1,5 +1,3 @@
-import { useTheme } from '../hooks/useTheme';
-
 interface CodeBlockProps {
   code: string;
   language?: string;
@@ -13,7 +11,6 @@ export default function RawCodeBlock({
   filename, 
   showLineNumbers = true 
 }: CodeBlockProps) {
-  const { isDark } = useTheme();
   
   const lines = code.split('\n');
   
@@ -47,17 +44,11 @@ export default function RawCodeBlock({
       
       {/* Code block */}
       <div className="overflow-x-auto">
-        <pre className={`p-4 text-sm leading-relaxed ${
-          isDark 
-            ? 'bg-gray-900 text-gray-100' 
-            : 'bg-gray-50 text-gray-800'
-        } font-mono`}>
+        <pre className={`p-4 text-sm leading-relaxed dark:bg-gray-900 dark:text-gray-100 bg-gray-50 text-gray-800 font-mono`}>
           <code>
             {showLineNumbers ? (
               <div className="flex">
-                <div className={`select-none pr-4 text-right ${
-                  isDark ? 'text-gray-500' : 'text-gray-400'
-                }`}>
+                <div className={`select-none pr-4 text-right dark:text-gray-500 text-gray-400`}>
                   {lines.map((_, index) => (
                     <div key={index} className="leading-relaxed">
                       {index + 1}
