@@ -4,7 +4,7 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    console.log("Component mounted"); // Debugging log
+    // console.log("Component mounted"); // Debugging log
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
@@ -19,13 +19,13 @@ export default function ThemeToggle() {
   }, []);
 
   const toggleTheme = () => {
-    alert("Button clicked!"); // Temporary alert for debugging
-    console.log("Toggle function called"); // Debugging log
+    // alert("Button clicked!"); // Temporary alert for debugging
+    // console.log("Toggle function called"); // Debugging log
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     
-    console.log("Toggling theme to:", newTheme); // Debugging log
+    // console.log("Toggling theme to:", newTheme); // Debugging log
     
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -34,7 +34,7 @@ export default function ThemeToggle() {
     }
 
     // Log the current class list
-    console.log("Current classes on <html>:", document.documentElement.classList);
+    // console.log("Current classes on <html>:", document.documentElement.classList);
   };
 
   return (
